@@ -11,8 +11,7 @@
 @implementation YourClass
 
 - (id)init {
-	self = [super init];
-	return self;
+	return [super init];
 }
 
 - (NSString*)goodbye {
@@ -44,8 +43,7 @@
 @implementation MyClass
 
 - (id)init {
-	self = [super init];
-	if (self != nil) {
+	if ((self = [super init])) {
 		myFloat = 5.0;
 	}
 	return self;
