@@ -36,9 +36,9 @@
 }
 
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-	xField.text = [NSString stringWithFormat:@"%.5", acceleration.x];
-	yField.text = [NSString stringWithFormat:@"%.5", acceleration.y];
-	zField.text = [NSString stringWithFormat:@"%.5", acceleration.z];
+	xField.text = [NSString stringWithFormat:@"%.5f", acceleration.x];
+	yField.text = [NSString stringWithFormat:@"%.5f", acceleration.y];
+	zField.text = [NSString stringWithFormat:@"%.5f", acceleration.z];
 }
 
 #pragma mark Multitouch
