@@ -2,7 +2,8 @@
 
 @interface MyCustomView : UIView <UIAccelerometerDelegate> {
 	CGFloat squareSize;
-	CGFloat rotation;
+	CGFloat squareRotation;
+	CGPoint squareCenter;
 	CGColorRef aColor;
 	BOOL twoFingers;
 	

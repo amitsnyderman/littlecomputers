@@ -15,7 +15,8 @@
 
 - (void)awakeFromNib{
 	squareSize = 100.0f;
-	rotation = 0.5f;
+	squareRotation = 0.5f;
+	squareCenter = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
 	twoFingers = NO;
 	
 	self.multipleTouchEnabled = YES;
@@ -46,23 +47,27 @@
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	NSLog(@"[touches] began [%d] %@", [touches count], touches);
 	
-	if ([touches count] > 1) {
-		twoFingers = YES;
-	}
-	
 	[self setNeedsDisplay];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	NSLog(@"[touches] moved [%d] %@", [touches count], touches);
+	//NSLog(@"[touches] moved [%d] %@", [touches count], touches);
 	
+	UITouch *touch1 = [[touches allObjects] objectAtIndex:0];
+
+	CGPoint previousPoint = [touch1 previousLocationInView:nil];
+	CGFloat previousAngle = atan2(squareCenter.y - previousPoint.y, squareCenter.x - previousPoint.x);
+	
+	CGPoint currentPoint = [touch1 locationInView:nil];
+	CGFloat currentAngle = atan2(squareCenter.y - currentPoint.y, squareCenter.x - currentPoint.x);
+	
+	squareRotation += currentAngle - previousAngle;
+		
 	[self setNeedsDisplay];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 	NSLog(@"[touches] ended [%d] %@", [touches count], touches);
-	
-	twoFingers = NO;
 	
 	[self setNeedsDisplay];
 }
@@ -72,23 +77,15 @@
 - (void)drawRect:(CGRect)rect {
 	NSLog(@"drawRect");
 	
-	CGFloat centerX = rect.size.width / 2;
-	CGFloat centerY = rect.size.height / 2;
 	CGFloat half = squareSize / 2;
 	CGRect aRect = CGRectMake(-half, -half, squareSize, squareSize);
 	
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	CGContextSaveGState(context);
-	CGContextTranslateCTM(context, centerX, centerY);
-	//CGContextRotateCTM(context, rotation);
+	CGContextTranslateCTM(context, squareCenter.x, squareCenter.y);
+	CGContextRotateCTM(context, squareRotation);
 	CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
-	
-	if (!twoFingers) {
-		CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 1.0);
-	} else {
-		CGContextSetRGBFillColor(context, 0.0, 1.0, 1.0, 1.0);
-	}
-	
+	CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 1.0);
 	CGContextFillRect(context, aRect);
 	CGContextStrokeRect(context, aRect);
 	CGContextRestoreGState(context);
