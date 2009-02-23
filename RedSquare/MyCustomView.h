@@ -4,8 +4,11 @@
 	CGFloat squareSize;
 	CGFloat squareRotation;
 	CGPoint squareCenter;
-	CGColorRef aColor;
-	BOOL twoFingers;
+	CGPoint moveOffset;
+	CGColorRef squareColor;
+	
+	BOOL isRotating;
+	BOOL isMoving;
 	
 	IBOutlet UILabel *xField;
 	IBOutlet UILabel *yField;
