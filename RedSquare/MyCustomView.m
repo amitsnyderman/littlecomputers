@@ -18,10 +18,9 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 }
 
 - (void)awakeFromNib{
-	squareSize = 100.0f;
+	square = CGRectMake(self.frame.size.width / 2, self.frame.size.height / 2, 100.0f, 100.0f);
 	squareRotation = 0.0f;
-	squareCenter = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
-	//squareColor = CGColorCreateGenericRGB(1.0, 0.0, 0.0, 1.0);
+	
 	isRotating = NO;
 	isMoving = NO;
 	
@@ -43,8 +42,6 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 }
 
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-	//squareColor = CGColorCreateGenericRGB(abs(acceleration.x), abs(acceleration.y), abs(acceleration.z), 1.0);
-	//[self setNeedsDisplay];
 	xField.text = [NSString stringWithFormat:@"%.5f", acceleration.x];
 	yField.text = [NSString stringWithFormat:@"%.5f", acceleration.y];
 	zField.text = [NSString stringWithFormat:@"%.5f", acceleration.z];
@@ -59,28 +56,23 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 // Switch to rotate/resize mode if a second touch is detected, canceling move action.
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-	//NSLog(@"[touches] began [%d] %@", [touches count], touches);
-	
 	if ([touches count] == 1) {
 		CGPoint start = [[[touches allObjects] objectAtIndex:0] locationInView:nil];
-		CGRect square = CGRectMake(squareCenter.x - (squareSize / 2), squareCenter.y - (squareSize / 2), squareSize, squareSize);
+		// Adjust for centering
+		CGRect cSquare = square;
+		cSquare.origin.x -= cSquare.size.width / 2;
+		cSquare.origin.y -= cSquare.size.height / 2;
 		
-		if (!CGRectContainsPoint(square, start)) return;
+		if (!CGRectContainsPoint(cSquare, start)) return;
 		
 		isMoving = YES;
-		moveOffset = CGPointMake(start.x - squareCenter.x, start.y - squareCenter.y);
+		moveOffset = CGPointMake(start.x - square.origin.x, start.y - square.origin.y);
 	}
 	
-	if ([touches count] == 2) {
-		isRotating = YES;
-	}
-	
-	[self setNeedsDisplay];
+	isRotating = ([touches count] == 2);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	//NSLog(@"[touches] moved [%d] %@", [touches count], touches);
-	
 	if ([touches count] == 2) {
 		isRotating = YES;
 		isMoving = NO;
@@ -93,8 +85,6 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-	//NSLog(@"[touches] ended [%d] %@", [touches count], touches);
-	
 	isMoving = isRotating = NO;
 	moveOffset = CGPointMake(0, 0);
 	
@@ -102,18 +92,14 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 }
 
 - (void)moveWithTouch:(UITouch *)touch {
-	//NSLog(@"moveWithTouch");
-	
 	CGPoint touchLocation = [touch locationInView:nil];
 	
-	squareCenter = CGPointMake(touchLocation.x - moveOffset.x, touchLocation.y - moveOffset.y);
+	square.origin = CGPointMake(touchLocation.x - moveOffset.x, touchLocation.y - moveOffset.y);
 	
 	[self setNeedsDisplay];
 }
 
 - (void)rotateAndScaleWithTouches:(NSSet *)touches {
-	//NSLog(@"rotateAndScaleWithTouch");
-	
 	UITouch *touch1 = [[touches allObjects] objectAtIndex:0];
 	UITouch *touch2 = [[touches allObjects] objectAtIndex:1];
 	
@@ -129,8 +115,9 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2);
 	
 	squareRotation += currentAngle - previousAngle;
 	
-	if (squareSize + (currentDistance - previousDistance) > 0) {
-		squareSize += (currentDistance - previousDistance);
+	if (square.size.width + (currentDistance - previousDistance) > 0) {
+		square.size.width += (currentDistance - previousDistance);
+		square.size.height += (currentDistance - previousDistance);
 	}
 	
 	[self setNeedsDisplay];
@@ -147,17 +134,15 @@ CGFloat distanceBetweenPoints(CGPoint point1, CGPoint point2) {
 #pragma mark Drawing
 
 - (void)drawRect:(CGRect)rect {
-	CGFloat half = squareSize / 2;
-	CGRect aRect = CGRectMake(-half, -half, squareSize, squareSize);
+	CGFloat half = square.size.width / 2;
+	CGRect aRect = CGRectMake(-half, -half, square.size.width, square.size.height);
 	
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	CGContextSaveGState(context);
-	CGContextTranslateCTM(context, squareCenter.x, squareCenter.y);
+	CGContextTranslateCTM(context, square.origin.x, square.origin.y);
 	CGContextRotateCTM(context, squareRotation);
 	CGContextSetRGBStrokeColor(context, 1.0, 0.0, 0.0, 1.0);
 	CGContextSetRGBFillColor(context, 0.0, 1.0, 0.0, 1.0);
-	//CGContextSetFillColorWithColor(context, squareColor);
-	//[squareColor setFill];
 	CGContextFillRect(context, aRect);
 	CGContextStrokeRect(context, aRect);
 	CGContextRestoreGState(context);

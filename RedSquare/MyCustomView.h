@@ -1,11 +1,9 @@
 #import <UIKit/UIKit.h>
 
 @interface MyCustomView : UIView <UIAccelerometerDelegate> {
-	CGFloat squareSize;
+	CGRect square;
 	CGFloat squareRotation;
-	CGPoint squareCenter;
 	CGPoint moveOffset;
-	CGColorRef squareColor;
 	
 	BOOL isRotating;
 	BOOL isMoving;
